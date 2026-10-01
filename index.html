@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de Reuniones Virtuales</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#1455b8;--blue2:#0b3d91;--light:#eef5ff;--text:#172033;--muted:#667085;--line:#dfe6f0;--white:#fff;--green:#0f9d6e}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#f5f7fb;color:var(--text)}
+.hero{background:linear-gradient(135deg,#0b3d91,#2878d7);color:white;padding:30px 18px}
+.hero-inner{max-width:1180px;margin:auto;display:flex;gap:18px;align-items:center}
+.logo{font-size:45px;background:#ffffff1f;border:1px solid #ffffff45;width:74px;height:74px;border-radius:20px;display:grid;place-items:center}
+.eyebrow{font-size:12px;letter-spacing:2px;margin:0 0 5px;opacity:.8;font-weight:700}
+h1{margin:0;font-size:clamp(28px,5vw,42px)}
+.subtitle{margin:8px 0 0;opacity:.9}
+.container{max-width:1180px;margin:25px auto;padding:0 16px}
+.toolbar{background:white;padding:18px;border-radius:16px;box-shadow:0 5px 22px #183b6d10;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.toolbar label{font-weight:700}
+select{min-width:270px;border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:white;font-size:15px;color:var(--text)}
+button{font:inherit}
+.secondary{border:1px solid #cbd7ea;background:var(--light);color:var(--blue2);border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}
+.group-card{margin:18px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;background:white;padding:22px;border-radius:16px;box-shadow:0 5px 22px #183b6d10}
+.group-card h2{margin:7px 0 3px;font-size:24px}
+.group-card p{margin:0;color:var(--muted)}
+.badge{font-size:11px;background:#e6f0ff;color:var(--blue2);padding:5px 9px;border-radius:99px;font-weight:800}
+.meet-btn{white-space:nowrap;background:var(--green);color:white;text-decoration:none;padding:12px 17px;border-radius:11px;font-weight:800}
+.day-tabs{display:none;gap:7px;overflow:auto;margin-bottom:10px}
+.day-tab{border:1px solid var(--line);background:white;border-radius:10px;padding:9px 14px;white-space:nowrap;cursor:pointer}
+.day-tab.active{background:var(--blue);color:white;border-color:var(--blue)}
+.schedule-wrap{overflow-x:auto;background:white;border-radius:16px;box-shadow:0 5px 22px #183b6d10}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th{background:#123f8e;color:white;padding:13px 10px;text-align:center;font-size:14px}
+td{border:1px solid var(--line);padding:12px;text-align:center;min-width:135px;height:65px}
+td.time{background:#f7f9fc;min-width:125px}
+.time strong{display:block;color:var(--blue2);font-size:13px}
+.time span{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+.subject{width:100%;height:100%;border:0;background:transparent;color:var(--text);font-weight:650;cursor:pointer;border-radius:8px;padding:7px}
+.subject:hover{background:#eaf2ff;color:var(--blue2)}
+.empty{color:#b7c0ce}
+.recess-row td{background:#fff6dc;color:#815c00;font-weight:800;height:45px}
+.mobile-schedule{display:none}
+.source-note{color:var(--muted);font-size:12px;text-align:center;margin:18px 0}
+footer{margin-top:35px;background:#0f244a;color:#dce7fa;padding:22px 18px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;font-size:13px}
+footer strong{color:white}
+@media(max-width:700px){
+ .hero{padding:22px 15px}.logo{width:58px;height:58px;font-size:32px;border-radius:16px}
+ .container{padding:0 12px;margin-top:16px}.toolbar{padding:14px}.toolbar label{width:100%}select{width:100%;min-width:0}.secondary{width:100%}
+ .group-card{padding:17px;align-items:flex-start;flex-direction:column}.group-card h2{font-size:21px}.meet-btn{width:100%;text-align:center}
+ .schedule-wrap{display:none}.day-tabs{display:flex}.mobile-schedule{display:block}
+ .mobile-schedule h3{margin:12px 0}.mobile-card{background:white;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:9px;display:grid;grid-template-columns:1fr 2fr;gap:5px 12px;box-shadow:0 3px 12px #183b6d09}
+ .mobile-time{color:var(--muted);font-size:13px}.mobile-subject{font-weight:800}
+ .mobile-card button{grid-column:1/-1;margin-top:8px;border:0;border-radius:9px;padding:9px;background:var(--blue);color:white;font-weight:700}
+ .mobile-recess{background:#fff6dc;color:#815c00;padding:12px;border-radius:10px;font-weight:700}
+}
+
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="logo">📅</div>
+    <div>
+      
+      <p class="eyebrow">AGENDA ESCOLAR</p>
+      <h1>Reuniones virtuales</h1>
+      <p class="subtitle">Consulta rápidamente el horario y accede al encuentro de tu grupo.</p>
+    </div>
+    <img src="escudoamm.png" alt="">
+  </div>
+</header>
+
+<main class="container">
+  <section class="toolbar">
+    <label for="groupSelect">Selecciona el grado o grupo</label>
+    <select id="groupSelect"></select>
+    <button id="todayBtn" class="secondary">Ver día actual</button>
+  </section>
+
+  <section id="groupInfo" class="group-card"></section>
+
+  <section class="day-tabs" id="dayTabs"></section>
+
+  <section class="schedule-wrap">
+    <table id="schedule">
+      <thead><tr><th>Hora</th><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="mobile-schedule" id="mobileSchedule"></section>
+
+  <p class="source-note">Información organizada a partir del documento de agenda suministrado por la institución.</p>
+</main>
+
+<footer>
+  <strong>Agenda de reuniones virtuales</strong>
+  <span>Diseño adaptable para computador, tableta y celular.</span>
+</footer>
+
+<script>
+const groups = [
+  {
+    "name": "Grado 4-1",
+    "meet": "https://meet.google.com/qde-jgnf-kfi",
+    "times": [
+      "7:30 - 8:15",
+      "8:15 - 9:00"
+    ],
+    "rows": [
+      [
+        "Luis Carlos",
+        "Jorge Enrique",
+        "Luis Carlos",
+        "Honny",
+        "Wilson"
+      ],
+      [
+        "Luis Carlos",
+        "Honny",
+        "Wilson",
+        "Luis Carlos",
+        "Jorge Enrique"
+      ]
+    ]
+  },
+  {
+    "name": "Grado 4-2",
+    "meet": "https://meet.google.com/fnw-gfqx-azu",
+    "times": [
+      "7:30 - 8:15",
+      "8:15 - 9:00"
+    ],
+    "rows": [
+      [
+        "Wilson",
+        "Honny",
+        "Wilson",
+        "Luis Carlos",
+        "Jorge Enrique"
+      ],
+      [
+        "Wilson",
+        "Jorge Enrique",
+        "Luis Carlos",
+        "Honny",
+        "Wilson"
+      ]
+    ]
+  },
+  {
+    "name": "Grado 5-1",
+    "meet": "https://meet.google.com/kip-tnis-vqj",
+    "times": [
+      "7:30 - 8:15",
+      "8:15 - 9:00"
+    ],
+    "rows": [
+      [
+        "Jorge Enrique",
+        "Luis Carlos",
+        "Jorge Enrique",
+        "Honny",
+        "Wilson"
+      ],
+      [
+        "Jorge Enrique",
+        "Wilson",
+        "Honny",
+        "Luis Carlos",
+        "Jorge Enrique"
+      ]
+    ]
+  },
+  {
+    "name": "Grado 5-2",
+    "meet": "https://meet.google.com/czv-bqim-rda",
+    "times": [
+      "7:30 - 8:15",
+      "8:15 - 9:00"
+    ],
+    "rows": [
+      [
+        "Honny",
+        "Wilson",
+        "Honny",
+        "Jorge Enrique",
+        "Luis Carlos"
+      ],
+      [
+        "Honny",
+        "Luis Carlos",
+        "Jorge Enrique",
+        "Wilson",
+        "Honny"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 6-1, 6-2, 6-3",
+    "meet": "https://meet.google.com/enm-vpox-kyt",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "Informática",
+        "Español",
+        "Artística",
+        "Ética",
+        "Tecnología"
+      ],
+      [
+        "Física",
+        "Religión",
+        "Edufísica",
+        "Geometría",
+        "Química"
+      ],
+      [
+        "Matemáticas",
+        "Inglés - Voc",
+        "Sociales",
+        "Estadística",
+        "C.Naturales"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 7-1 y 7-2",
+    "meet": "https://meet.google.com/pmw-koxp-osj",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "Matemáticas",
+        "Español – LC",
+        "Sociales",
+        "C.Naturales",
+        "Artística"
+      ],
+      [
+        "Informática",
+        "Religión",
+        "Tecnología",
+        "Inglés",
+        "Estadística"
+      ],
+      [
+        "Química",
+        "Ética",
+        "Geometría",
+        "Física",
+        "Edufísica"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 7-3 y 7-4",
+    "meet": "https://meet.google.com/gvz-jhvg-wno",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "C.Naturales",
+        "Química",
+        "Matemática",
+        "Tecnología",
+        "Geometría"
+      ],
+      [
+        "Inglés",
+        "Español L.C",
+        "Informática",
+        "Artística",
+        "Edufísica"
+      ],
+      [
+        "Ética",
+        "Sociales",
+        "Física",
+        "Religión",
+        "Estadística"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 8-1 y 8-2",
+    "meet": "https://meet.google.com/gyc-kjfb-nrh",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "Matemática",
+        "Artística",
+        "Ética",
+        "Edufísica",
+        "Geometría"
+      ],
+      [
+        "C.Naturales",
+        "Contabilidad",
+        "Física",
+        "Español",
+        "Religión"
+      ],
+      [
+        "Inglés",
+        "Sociales",
+        "Tecnol e",
+        "Estadística",
+        "Química"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 8-3 y 8-4",
+    "meet": "https://meet.google.com/yan-zrmk-njz",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "Química",
+        "Sociales",
+        "Español",
+        "Inglés",
+        "Física"
+      ],
+      [
+        "Artística",
+        "Matemáticas",
+        "Estadística",
+        "Religión",
+        "Geometría"
+      ],
+      [
+        "Ética",
+        "C.Naturales",
+        "Edufísica",
+        "Tecnol e inf.",
+        "Contabilidad"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 9-1 y 9-2",
+    "meet": "https://meet.google.com/fez-bntc-evc",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "Sociales",
+        "Estadística",
+        "Ética",
+        "Español",
+        "Inglés"
+      ],
+      [
+        "Tecnol e inf.",
+        "Química",
+        "Geometría",
+        "Álgebra",
+        "Física"
+      ],
+      [
+        "C.Naturales",
+        "Artística",
+        "Contabilidad",
+        "Religión",
+        "Edufísica"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 9-3 y 9-4",
+    "meet": "https://meet.google.com/roz-ifwd-jsp",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00"
+    ],
+    "rows": [
+      [
+        "Contabilidad",
+        "Religión",
+        "Edufísica",
+        "C.Naturales",
+        "Artística"
+      ],
+      [
+        "Español",
+        "Inglés",
+        "Sociales",
+        "Estadística",
+        "Ética"
+      ],
+      [
+        "Álgebra",
+        "Física",
+        "Tecnol e inf.",
+        "Química",
+        "Geometría"
+      ]
+    ]
+  },
+  {
+    "name": "Grupos 10-1 y 10-2",
+    "meet": "https://meet.google.com/zqd-qdqn-rip",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00",
+      "9:30 - 10:10",
+      "10:10 - 10:50"
+    ],
+    "rows": [
+      [
+        "Física",
+        "Sena",
+        "Inglés",
+        "Trigonometría",
+        "Edufísica"
+      ],
+      [
+        "Química",
+        "Tecnol e inf.",
+        "Artística",
+        "Biología",
+        "Religión"
+      ],
+      [
+        "Paq. Con y Contabilidad",
+        "Español",
+        "Filosofía",
+        "Sociales - EP",
+        "Ética y Val"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Estadística"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Gest Doc- Leg. Cial"
+      ]
+    ],
+    "recess": "9:00 - 9:30"
+  },
+  {
+    "name": "Grupos 10-3 y 10-4",
+    "meet": "https://meet.google.com/hfm-gifn-ubr",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00",
+      "9:30 - 10:10",
+      "10:10 - 10:50"
+    ],
+    "rows": [
+      [
+        "Artística",
+        "Sociales – Econ. Polit",
+        "Ética y Val",
+        "Paq. Cont y Contabilidad",
+        "G. Doc- Leg. Cial"
+      ],
+      [
+        "Filosofía",
+        "Sena",
+        "Religión",
+        "Tecnol e inf.",
+        "Química"
+      ],
+      [
+        "Trigonometría",
+        "Estadística",
+        "Física",
+        "Español",
+        "Inglés"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Edufísica"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Biología"
+      ]
+    ],
+    "recess": "9:00 - 9:30"
+  },
+  {
+    "name": "Grupos 11-1 y 11-2",
+    "meet": "https://meet.google.com/dxf-zdtj-utx",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00",
+      "9:30 - 10:10",
+      "10:10 - 10:50"
+    ],
+    "rows": [
+      [
+        "Química",
+        "Inglés",
+        "Sena",
+        "Gestión Documental",
+        "Cálculo"
+      ],
+      [
+        "Estadística",
+        "Física",
+        "Paquete Contable",
+        "Artística",
+        "Tecnol e inf."
+      ],
+      [
+        "Eco Pol y Religión",
+        "Sociales- Ética",
+        "Contabilidad",
+        "Edufísica",
+        "Biología"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Filosofía - LC"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Español"
+      ]
+    ],
+    "recess": "9:00 - 9:30"
+  },
+  {
+    "name": "Grupos 11-3 y 11-4",
+    "meet": "http://meet.google.com/vew-inqd-kvj",
+    "times": [
+      "7:00 - 7:40",
+      "7:40 - 8:20",
+      "8:20 - 9:00",
+      "9:30-10:10",
+      "10:10-10:50"
+    ],
+    "rows": [
+      [
+        "Contabilidad- Leg Laboral",
+        "Filosofía - LC",
+        "Biología",
+        "Artística",
+        "Física"
+      ],
+      [
+        "Cálculo",
+        "Sociales- Ética",
+        "Sena",
+        "Edufísica",
+        "Gestión Documental"
+      ],
+      [
+        "Tecnol e inf.",
+        "Paquete Contable",
+        "Español",
+        "Química",
+        "Eco Pol Y Religión"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Inglés"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "Estadística"
+      ]
+    ],
+    "recess": "9:00 - 9:30"
+  }
+];
+const days = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
+const select = document.getElementById("groupSelect");
+const groupInfo = document.getElementById("groupInfo");
+const tbody = document.querySelector("#schedule tbody");
+const tabs = document.getElementById("dayTabs");
+const mobile = document.getElementById("mobileSchedule");
+
+groups.forEach((g,i) => {
+  const o=document.createElement("option");
+  o.value=i; o.textContent=g.name;
+  select.appendChild(o);
+});
+
+function render(i, selectedDay=null) {
+  const g=groups[i];
+  groupInfo.innerHTML = `
+    <div>
+      <span class="badge">GRUPO</span>
+      <h2>${g.name}</h2>
+      <p>Consulta el horario semanal y entra directamente a la reunión virtual.</p>
+    </div>
+    <a class="meet-btn" href="${g.meet}" target="_blank" rel="noopener">🎥 Entrar a Google Meet</a>
+  `;
+  tbody.innerHTML="";
+  g.rows.forEach((row,r) => {
+    const tr=document.createElement("tr");
+    const td=document.createElement("td");
+    td.className="time";
+    td.innerHTML=`<strong>${r+1}</strong><span>${g.times[r]||""}</span>`;
+    tr.appendChild(td);
+    row.forEach((subject,c) => {
+      const cell=document.createElement("td");
+      if(subject) {
+        cell.innerHTML=`<button class="subject" title="Abrir encuentro virtual">${subject}</button>`;
+        cell.querySelector("button").onclick=()=>window.open(g.meet,"_blank");
+      } else cell.innerHTML='<span class="empty">—</span>';
+      cell.dataset.day=days[c];
+      tr.appendChild(cell);
+    });
+    tbody.appendChild(tr);
+  });
+  if(g.recess) {
+    const tr=document.createElement("tr");
+    tr.className="recess-row";
+    tr.innerHTML=`<td colspan="6">☕ RECESO · ${g.recess}</td>`;
+    tbody.appendChild(tr);
+  }
+  tabs.innerHTML = days.map((d,idx)=>`<button class="day-tab ${selectedDay===idx?'active':''}" data-day="${idx}">${d}</button>`).join("");
+  tabs.querySelectorAll(".day-tab").forEach(btn=>btn.onclick=()=>showMobile(i,+btn.dataset.day));
+  showMobile(i, selectedDay ?? new Date().getDay()-1);
+}
+
+function showMobile(i, dayIndex) {
+  if(dayIndex<0 || dayIndex>4) dayIndex=0;
+  const g=groups[i];
+  document.querySelectorAll(".day-tab").forEach((b,n)=>b.classList.toggle("active",n===dayIndex));
+  mobile.innerHTML = `<h3>${days[dayIndex]}</h3>`;
+  g.rows.forEach((row,r)=>{
+    const subject=row[dayIndex]||"Sin actividad";
+    if(!subject) return;
+    const card=document.createElement("article");
+    card.className="mobile-card";
+    card.innerHTML=`<div class="mobile-time">${g.times[r]||""}</div>
+      <div class="mobile-subject">${subject}</div>
+      <button onclick="window.open('${g.meet}','_blank')">🎥 Entrar al encuentro</button>`;
+    mobile.appendChild(card);
+  });
+  if(g.recess) mobile.insertAdjacentHTML("beforeend",`<div class="mobile-recess">☕ Receso: ${g.recess}</div>`);
+}
+
+select.addEventListener("change",()=>render(+select.value));
+document.getElementById("todayBtn").addEventListener("click",()=>{
+  const d=new Date().getDay()-1;
+  showMobile(+select.value,d>=0&&d<5?d:0);
+  document.querySelector(".day-tabs").scrollIntoView({behavior:"smooth",block:"center"});
+});
+render(0);
+</script>
+</body>
+</html>
